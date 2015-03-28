@@ -4,6 +4,7 @@ function median = medianIntenstiy(image)
 	for k = 1:3
 		for j = 1:col
 			total = total + sum(double(image(:, j, k)));
+		%	total = total + sum(double(image(:, j, k))+ double(image(:, j, k)) + double(image(:, j, k))) / 256;
 		end
 	end
 
