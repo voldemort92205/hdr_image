@@ -14,14 +14,21 @@ function [x, y] = alignment (image1, image2)
 	tmp = find(image2(1,:,:) == 255);
 	picture2(tmp) = 1;
 	
-
+	
 	delta = 0;
+	colMaxRange = col;
+	rowMaxRange = row;
+	theBest = [-1, -1, -1, -1];
 	%right shift
 	while range < (min(col, row)/2)
-		for j = 1:col-delta
-			
+		for j = 1:col-colMaxRange+1
+			for i = 1:row-rowMaxRange+1
+				
+			end		
 		end
+		break;
 	end
+
 	
 
 
