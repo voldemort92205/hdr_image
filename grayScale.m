@@ -1,17 +1,8 @@
-function grayScale (input, output)
-
+function [Image] = grayScale (input, output)
 	image = imread (input);
-	median = medianIntensity (image);
 	[row, col, height] = size(image);
-	for j = 1:col
-		for i = 1:row
-			tmp = sum(double(image(i, j, :))) / 3;
-			if tmp < median
-				image(i, j, :) = 0;
-			else
-				image(i, j, :) = 255;
-			end
-		end
-	end
-	imwrite (image, output);
+%	Image = (54 * double(image (:, :, 1)) + 183 * double(image (:, :, 2)) + 19 * double(image (:, :, 3))) / 256;
+	Image = rgb2gray(image);
+	Image = mtbFunction(Image);
+	imwrite (Image, output);
 end
