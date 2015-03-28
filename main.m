@@ -26,7 +26,6 @@ end
 
 %TODO
 
-
 %calculage function
 
 %for r, g, b
