@@ -7,35 +7,27 @@ close all
 %const
 lambda = 1;
 weight = ones(256, 1);
-B = ones (256, 1);
 
 pixel = 256;
-picked = 75;
+picked = 64;
 
 
 
-%use for loop to convert many image to gray scale
 [filename, savedname] = textread ('image.txt', '%s %s');
 n = size(filename, 1);
+B = log([8, 5, 2.5, 1, 0.5, 0.25, 1/8, 1/15, 1/30, 1/60, 1/320]);
+
 for i = 1:n
 	tmp = grayScale(filename{i}, savedname{i});
 	[row, col] = size(tmp);
 	grayImages(i, 1:row, 1:col) = tmp;
 end
 %alias
-%record the range of each picture
-resize = zeros(n, 4);
-%for test
 
-for i = 1:(n-1)
-	[x, y] = alignment (grayImages(i,:, :), grayImages(i+1, :, :));
-end
-
+%TODO
 
 
 %calculage function
-%open image
-
 
 %for r, g, b
 gf = zeros(3, pixel);
@@ -49,19 +41,24 @@ for i = 1:n
 	images(i, 1:row, 1:col, 1:height) = I1;
 end
 start = randi ([1, range-100], 1, 1);
-
-
+[num, row, col, height] = size(images);
 
 %calculate g and ln(E)
 input = zeros(picked, n);
 for k = 1:3
 	for i = 1:n
-		tmp = images(i, :, :, k);
-		input(:, i) = tmp (start:(start+picked-1))';
+		tmp = images(i,(int64(row/2) -4 ):(int64(row/2+3)), (int64(col/2)-4):(int64(col/2)+3), k);
+		input (:, i) = reshape(tmp, 64, 1); 
+%		tmp = images(i, :, :, k);
+%		input(:, i) = tmp (start:(start+picked-1))';
 	end
 	[gf(k,:), lnE(k,:)] = mysolve(input, B, lambda, weight);	
 end
 
 
-%plot (1:pixel, gf(1, :), 1:pixel, gf(2, :), 1:pixel, gf(3,:));
+%plot (1:pixel, exp(gf(1, :)), 1:pixel, exp(gf(2, :)), 1:pixel, exp(gf(3,:)));
+plot (1:pixel, exp(gf(1, :)));
+title ('Red');
+ylabel('g');
+
 
