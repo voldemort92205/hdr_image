@@ -23,6 +23,8 @@ function [g, lnE] = mysolve(images, B, lamdba, weight)
 		k = k + 1;
 	end
 	x = A \ b;
-	g = x(1:n);
+	g = x(1:n) - x(127);
 	lnE = x(n+1:size(x,1));
+
+
 end
