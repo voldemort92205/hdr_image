@@ -26,15 +26,15 @@ n = size(filename, 1);
 %TODO
 
 %calculage function
-lambda = 55;
+lambda = 50;
 weight = ones(256, 1);
 weight(1:128) = 1:1:128;
 weight(129:256) = 128:-1:1;
 
-B = log([8, 5, 2.5, 1, 0.5, 0.25, 1/8, 1/15, 1/30, 1/60, 1/320]);
+%B = log([8, 5, 2.5, 1, 0.5, 0.25, 1/8, 1/15, 1/30, 1/60, 1/320]);
 pixel = 256;
 picked = 64;
-
+B = log([0.6 1.0/3, 1.0/6, 10.0/13, 0.04, .02, 0.01, 0.005, 0.0025, 0.00125, 0.000625]);
 
 %for r, g, b
 gf = zeros(pixel, 3);
@@ -76,7 +76,11 @@ for k = 1:3
 	end
 end
 hdrwrite(output, outputName);
-rgb = tonemap(output);
+%rgb = tonemap(output);
+
+rgb = tonemap(output, 'AdjustLightness', [0.001, 1.0], 'AdjustSaturation', 9);
+
+
 figure(1);
 imshow(rgb);
 print ('-dpng', 'project1.png');
