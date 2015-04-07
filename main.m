@@ -1,45 +1,28 @@
 clear all
 close all
 
-
-%sample test is rain.jpg
-
-%const
-outputName = 'project1.hdr';
-
-[filename, savedname] = textread ('image.txt', '%s %s');
+[filename, time] = textread ('image.txt', '%s %f');
 n = size(filename, 1);
 
+B = zeros(n, 1);
+for i = 1:n
+	B(i) = time(i);
+end
+B = log(B);
 
-
-%no alignment
-
-
-
-%for i = 1:n
-%	tmp = grayScale(filename{i}, savedname{i});
-%	[row, col] = size(tmp);
-%	grayImages(i, 1:row, 1:col) = tmp;
-%end
-%alias
-
-%TODO
 
 %calculage function
-lambda = 50;
+lamdba = 125;
 weight = ones(256, 1);
 weight(1:128) = 1:1:128;
 weight(129:256) = 128:-1:1;
 
-%B = log([8, 5, 2.5, 1, 0.5, 0.25, 1/8, 1/15, 1/30, 1/60, 1/320]);
-pixel = 256;
+pixel = 256;    %Z0 ~ Z255, total 256
 picked = 64;
-B = log([0.6 1.0/3, 1.0/6, 10.0/13, 0.04, .02, 0.01, 0.005, 0.0025, 0.00125, 0.000625]);
 
 %for r, g, b
 gf = zeros(pixel, 3);
 lnE = zeros(picked, 3);
-n = 11 ;
 %read all images
 for i = 1:n
 	I1 = imread (filename{i});
@@ -47,7 +30,6 @@ for i = 1:n
 	range = row * col;
 	images(i, 1:row, 1:col, 1:height) = I1;
 end
-start = randi ([1, range-100], 1, 1);
 [num, row, col, height] = size(images);
 
 %calculate g and ln(E)
@@ -57,7 +39,8 @@ for k = 1:3
 		tmp = images(i,(int64(row/2) -4 ):(int64(row/2+3)), (int64(col/2)-4):(int64(col/2)+3), k);
 		input (:, i) = reshape(tmp, 64, 1); 
 	end
-	[gf(:, k), lnE(:, k)] = mysolve(input, B, lambda, weight);	
+	%mysolve is provided in teacher's lecture
+	[gf(:, k), lnE(:, k)] = mysolve(input, B, lamdba, weight);	
 end
 
 %construct HDR radaince map
@@ -75,33 +58,48 @@ for k = 1:3
 		end
 	end
 end
-hdrwrite(output, outputName);
-%rgb = tonemap(output);
 
+
+
+
+%output HDR image
+hdrwrite(output, 'result.hdr');
 rgb = tonemap(output, 'AdjustLightness', [0.001, 1.0], 'AdjustSaturation', 9);
 
-
+%show tone mapping image
 figure(1);
 imshow(rgb);
-print ('-dpng', 'project1.png');
-%draw picture
+print ('-dpng', 'result.png');
 
+
+
+
+%the response curve of the curve
 figure(2);
 for i = 1:3
 	subplot (2, 2, i);
 	switch i
 	case 1
-		plot (0:1:255, gf(:, i), 'r.');
+		plot (gf(:, i), 0:1:255, 'r.');
 		title ('red');
 	case 2
-		plot (0:1:255, gf(:, i), 'g.');
+		plot (gf(:, i), 0:1:255, 'g.');
 		title ('green');
 	case 3
-		plot (0:1:255, gf(:, i), 'b.');
+		plot (gf(:, i), 0:1:255, 'b.');
 		title ('blue');
 	end
-	set (gca, 'xtick', [0:25:300]);
+	set (gca, 'ytick', [0:25:300]);
+	xlabel ('log Expouse X');
+	ylabel ('Pixel value Z');
 
 end
+subplot (2, 2, 4)
+plot (gf(:,1), 0:1:255, 'r.', gf(:,2), 0:1:255, 'g.', gf(:,3), 0:1:255, 'b.');
+legend ('Red', 'Green', 'Blue');
+title ('Red vs Green vs Blue');
+xlabel ('log Expouse X');
+ylabel ('Pixel value Z');
+
 print ('-dpng', 'curve.png');
 
